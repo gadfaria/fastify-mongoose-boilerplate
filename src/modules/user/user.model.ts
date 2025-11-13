@@ -1,4 +1,4 @@
-import { model, models, Schema, type Model } from 'mongoose';
+import mongoose, { model, Schema, type Model } from 'mongoose';
 
 export interface IUser {
   name: string;
@@ -27,11 +27,12 @@ const userSchema = new Schema<IUser>(
   },
   {
     versionKey: false,
-  }
+  },
 );
 
 userSchema.index({ email: 1 }, { unique: true });
 
 export type UserModelType = Model<IUser>;
 
-export const UserModel: UserModelType = models.User || model<IUser>('User', userSchema);
+export const UserModel: UserModelType =
+  (mongoose.models.User as UserModelType | undefined) || model<IUser>('User', userSchema);

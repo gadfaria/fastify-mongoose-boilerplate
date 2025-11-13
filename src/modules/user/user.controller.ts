@@ -1,6 +1,5 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import mongoose from 'mongoose';
-import type { MongoServerError } from 'mongodb';
 import { ZodError } from 'zod';
 import { UserModel } from './user.model.js';
 import { createUserBodySchema, type CreateUserInput } from './user.schemas.js';
@@ -28,7 +27,7 @@ export const createUser = async (request: CreateUserRequest, reply: FastifyReply
       });
     }
 
-    if (error instanceof mongoose.Error.ValidationError || isDuplicateKeyError(error)) {
+    if (error instanceof mongoose.Error.ValidationError) {
       return reply.status(400).send({ message: 'Invalid user data' });
     }
 
@@ -45,13 +44,4 @@ export const listUsers = async (_request: ListUsersRequest, reply: FastifyReply)
     _request.log.error(error, '[User] Failed to list users');
     return reply.status(500).send({ message: 'Unable to list users' });
   }
-};
-
-const isDuplicateKeyError = (error: unknown): error is MongoServerError => {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'code' in error &&
-    (error as MongoServerError).code === 11000
-  );
 };
